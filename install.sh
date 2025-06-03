@@ -21,11 +21,31 @@ brew_casks=(
 )
 
 # Установка Homebrew, для macOS
-if [ "$(uname)" == "Darwin" ]; then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  echo "brew установлен"
-fi
+if ! command -v brew &> /dev/null; then
+  if [ "$(uname)" == "Darwin" ]; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
+    # Добавляем brew в PATH сразу после установки
+    echo "📌 Добавляем Homebrew в PATH..."
+
+    BREW_PREFIX=$(/opt/homebrew/bin/brew --prefix 2>/dev/null || /usr/local/bin/brew --prefix)
+
+    if [[ "$SHELL" == */zsh ]]; then
+      echo "eval \"\$(${BREW_PREFIX}/bin/brew shellenv)\"" >> "$HOME"/.zprofile
+      eval "$("${BREW_PREFIX}"/bin/brew shellenv)"
+    elif [[ "$SHELL" == */bash ]]; then
+      echo "eval \"\$(${BREW_PREFIX}/bin/brew shellenv)\"" >> "$HOME"/.bash_profile
+      eval "$("${BREW_PREFIX}"/bin/brew shellenv)"
+    else
+      echo "⚠️ Неизвестный шелл. Добавьте путь вручную:"
+      echo "eval \"\$(${BREW_PREFIX}/bin/brew shellenv)\""
+    fi
+
+    echo "✅ Homebrew установлен"
+  fi
+else
+  echo "✅ Homebrew найден."
+fi
 # ==== Установка cask-пакетов ====
 for pkg in "${brew_casks[@]}"; do
     echo "📦 Устанавливаем cask: $pkg"
