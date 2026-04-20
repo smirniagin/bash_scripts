@@ -17,6 +17,7 @@ brew_packages=(
   kubectl
   kubectx
   k9s
+  golangci-lint
 )
 
 brew_casks=(
